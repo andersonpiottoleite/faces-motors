@@ -1,0 +1,92 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui">
+<h:head>
+	<title>Insert title here</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+</h:head>
+<h:body>
+	<h:form>
+
+		<h:panelGrid columns="2">
+		Nome: <h:inputText value="#{clienteBean.cliente.nome}"></h:inputText>
+		
+		Sobrenome:  <h:inputText value="#{clienteBean.cliente.sobreNome}"></h:inputText>
+		
+		Idade:  <h:inputText value="#{clienteBean.cliente.idade}"></h:inputText>
+		
+		  Data de dascimento:  <h:inputText value="#{clienteBean.cliente.dataDeDascimento.time}"></h:inputText> 
+		
+		Observações:  <h:inputTextarea value="#{clienteBean.observacoes}"></h:inputTextarea>
+		
+		</h:panelGrid>
+		 <p:spacer height="40" />
+		 
+		<h:dataTable value="#{clienteBean.clientes}" var="cliente" border="1">
+			<h:column>
+				<f:facet name="header">
+					Id
+				</f:facet>
+				${cliente.id}
+			</h:column>
+			<h:column >
+				<f:facet name="header">
+					Nome
+				</f:facet>
+				#{cliente.nome}
+			</h:column>
+			<h:column>
+				<f:facet name="header">
+					Sobre Nome
+				</f:facet>
+				#{cliente.sobreNome}
+			</h:column>
+			<h:column>
+				<f:facet name="header">
+					Idade
+				</f:facet>
+			 	#{cliente.idade}
+			</h:column>
+			<h:column>
+				<f:facet name="header">
+					Data de Nascimento
+				</f:facet>
+			 	#{cliente.dataDeDascimento.time}
+			</h:column>
+			<h:column>
+				<f:facet name="header">
+					Observações
+				</f:facet>
+			 	#{clienteBean.observacoes}
+			</h:column>
+			<h:column>
+				<f:facet name="header">
+				Ações
+				</f:facet>
+			</h:column>
+		</h:dataTable>
+		
+		
+		<p:dialog widgetVar="dialogDependente"
+									  modal="true"
+									  appendTo="@(body)"
+									  closable="true"
+									  closeOnEscape="true"
+					                  width="70%"
+									  header="Dependentes">
+									  
+									  <h:outputText value="TESTE"></h:outputText>
+					
+							</p:dialog>
+		
+							<p:commandButton id="btAddDependente" icon="ui-icon-plus" update="@all"
+									type="button" onclick="'dialogDependente'.show();"
+									title="Adicionar Dependente"/>
+									
+									
+							
+									
+	</h:form>
+</h:body>
+</html>
