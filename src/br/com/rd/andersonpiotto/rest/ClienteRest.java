@@ -10,7 +10,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -30,6 +29,7 @@ import javax.xml.bind.DatatypeConverter;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import javax.xml.bind.PropertyException;
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.google.gson.Gson;
@@ -112,23 +112,26 @@ public class ClienteRest {
 		if(httpHeaders != null) {
 			for (Entry<String, List<String>> entry : httpHeaders.getRequestHeaders().entrySet()) {
 				
-				if(entry.getKey().equals("key")) {
-					if(!entry.getValue().get(0).toString().equals("myKey")) {
+				String key = entry.getKey();
+				String value = entry.getValue().get(0);
+				
+				if(key.equals("key")) {
+					if(!value.toString().equals("myKey")) {
 			 
 						return getResponseComStatusNaoAutorizado();
 					}
 				}
 				
-				if(entry.getKey().equals("value")) {
-					if(!entry.getValue().get(0).toString().equals("myValue")) {
+				if(key.equals("value")) {
+					if(!value.toString().equals("myValue")) {
 						
 						return getResponseComStatusNaoAutorizado();
 						
 					}
 				}
 				
-				if(entry.getKey().equals("token")) {
-					if(!entry.getValue().get(0).toString().equals("ece40d50-b22b-4b33-a728-343be730d85e")) {
+				if(key.equals("token")) {
+					if(!value.toString().equals("ece40d50-b22b-4b33-a728-343be730d85e")) {
 						
 						return getResponseComStatusNaoAutorizado();
 						
@@ -192,23 +195,26 @@ public class ClienteRest {
 		if(httpHeaders != null) {
 			for (Entry<String, List<String>> entry : httpHeaders.getRequestHeaders().entrySet()) {
 				
-				if(entry.getKey().equals("key")) {
-					if(!entry.getValue().get(0).toString().equals("myKey")) {
+				String key = entry.getKey();
+				String value = entry.getValue().get(0);
+				
+				if(key.equals("key")) {
+					if(!value.toString().equals("myKey")) {
 			 
 						return getResponseComStatusNaoAutorizado();
 					}
 				}
 				
-				if(entry.getKey().equals("value")) {
-					if(!entry.getValue().get(0).toString().equals("myValue")) {
+				if(key.equals("value")) {
+					if(!value.toString().equals("myValue")) {
 						
 						return getResponseComStatusNaoAutorizado();
 						
 					}
 				}
 				
-				if(entry.getKey().equals("token")) {
-					if(!entry.getValue().get(0).toString().equals("ece40d50-b22b-4b33-a728-343be730d85e")) {
+				if(key.equals("token")) {
+					if(!value.toString().equals("ece40d50-b22b-4b33-a728-343be730d85e")) {
 						
 						return getResponseComStatusNaoAutorizado();
 						
@@ -268,72 +274,27 @@ public class ClienteRest {
 	}
 	
 	@GET
-	@Path("clienteArcelor")
+	@Path("beneficiarios")
 	@Produces(MediaType.APPLICATION_JSON)
 	@Consumes(MediaType.APPLICATION_JSON)
-	public Response getClientesArcelorJSON(@Context HttpHeaders httpHeaders, @HeaderParam("authorization") String authString) throws IOException, JAXBException {
+	public Response getBeneficiariosJSON(@Context HttpHeaders httpHeaders, @HeaderParam("authorization") String authString) throws IOException, JAXBException {
 		
-		if(httpHeaders != null) {
-			for (Entry<String, List<String>> entry : httpHeaders.getRequestHeaders().entrySet()) {
-				
-				if(entry.getKey().equals("key")) {
-					if(!entry.getValue().get(0).toString().equals("myKey")) {
-			 
-						return getResponseComStatusNaoAutorizado();
-					}
-				}
-				
-				if(entry.getKey().equals("value")) {
-					if(!entry.getValue().get(0).toString().equals("myValue")) {
-						
-						return getResponseComStatusNaoAutorizado();
-						
-					}
-				}
-				
-				if(entry.getKey().equals("token")) {
-					if(!entry.getValue().get(0).toString().equals("ece40d50-b22b-4b33-a728-343be730d85e")) {
-						
-						return getResponseComStatusNaoAutorizado();
-						
-					}
-				}
-				
-			}
-		}
-		
-		if(authString != null) {
-			String decodedAuth = "";
+		if(! validaApiKeyEHeader(httpHeaders)) {
+			return getResponseComStatusNaoAutorizado();
 			
-	        String[] authParts = authString.split("\\s+");
-	        
-	        String authInfo = authParts[1];
-	        
-	        byte[] bytes = null;
-	        bytes = Base64.getDecoder().decode(authInfo);
-	        decodedAuth = new String(bytes);
-	        
-	        System.out.println("In service: " + decodedAuth);
-	        
-	        String[] dados = decodedAuth.split(":");
-	        
-	        String usuario = dados[0];
-	        String senha = dados[1];
-	        
-	        if(!usuario.equals("meuUsuario!") || !senha.equals("minhaSenha!")) {
-	        	return getResponseComStatusNaoAutorizado();
-	        }
+		}
+		
+		if(! validaBasicAuth(authString)) {
+			return getResponseComStatusNaoAutorizado();
+			
 		}
 	    
-		GsonBuilder builder = new GsonBuilder(); 
-		// formatação
-	    Gson gson = builder.setPrettyPrinting().create();
-		
-	    //Gson gson = builder.create();
+		Gson gson = criaGson();
 	    
-	    ClienteArcelor clienteArcelor = new ClienteArcelor();
+	    ContentArcelor contentArcelor = new ContentArcelor();
 	    
-        String result = gson.toJson(clienteArcelor);
+        String result = gson.toJson(contentArcelor);
+        
         return Response
                 .status(Status.OK)
                 .entity(result)
@@ -341,76 +302,41 @@ public class ClienteRest {
         
         
 	}
+
+
+	private Gson criaGson() {
+		GsonBuilder builder = new GsonBuilder(); 
+		// com formatação
+	    Gson gson = builder.setPrettyPrinting().create();
+	    
+	    // sem formatação
+	    //Gson gson = builder.create();
+	    
+		return gson;
+	}
 	
 	@GET
-	@Path("clienteArcelor")
+	@Path("beneficiarios")
 	@Produces(MediaType.APPLICATION_XML)
 	@Consumes(MediaType.APPLICATION_XML)
-	public Response getClientesArcelorXML(@Context HttpHeaders httpHeaders, @HeaderParam("authorization") String authString) throws IOException, JAXBException {
+	public Response getBeneficiariosXML(@Context HttpHeaders httpHeaders, @HeaderParam("authorization") String authString) throws IOException, JAXBException {
 		
-		if(httpHeaders != null) {
-			for (Entry<String, List<String>> entry : httpHeaders.getRequestHeaders().entrySet()) {
-				
-				if(entry.getKey().equals("key")) {
-					if(!entry.getValue().get(0).toString().equals("myKey")) {
-			 
-						return getResponseComStatusNaoAutorizado();
-					}
-				}
-				
-				if(entry.getKey().equals("value")) {
-					if(!entry.getValue().get(0).toString().equals("myValue")) {
-						
-						return getResponseComStatusNaoAutorizado();
-						
-					}
-				}
-				
-				if(entry.getKey().equals("token")) {
-					if(!entry.getValue().get(0).toString().equals("ece40d50-b22b-4b33-a728-343be730d85e")) {
-						
-						return getResponseComStatusNaoAutorizado();
-						
-					}
-				}
-				
-			}
-		}
-		
-		if(authString != null) {
-			String decodedAuth = "";
+		if(! validaApiKeyEHeader(httpHeaders)) {
+			return getResponseComStatusNaoAutorizado();
 			
-	        String[] authParts = authString.split("\\s+");
-	        
-	        String authInfo = authParts[1];
-	        
-	        byte[] bytes = null;
-	        bytes = Base64.getDecoder().decode(authInfo);
-	        decodedAuth = new String(bytes);
-	        
-	        System.out.println("In service: " + decodedAuth);
-	        
-	        String[] dados = decodedAuth.split(":");
-	        
-	        String usuario = dados[0];
-	        String senha = dados[1];
-	        
-	        if(!usuario.equals("meuUsuario!") || !senha.equals("minhaSenha!")) {
-	        	return getResponseComStatusNaoAutorizado();
-	        }
+		}
+		
+		if(! validaBasicAuth(authString)) {
+			return getResponseComStatusNaoAutorizado();
+			
 		}
 	    
-		ClienteArcelor clienteArcelor = new ClienteArcelor();
-	    
-		JAXBContext jaxbContext = JAXBContext.newInstance(ClienteArcelor.class);
+		Marshaller jaxbMarshaller = criaJAXBContext(ContentArcelor.class);
 		
-		Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+		ContentArcelor contentArcelor = new ContentArcelor();
 		
-		// formatação
-		jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-
 		StringWriter stringWriter = new StringWriter();
-		jaxbMarshaller.marshal(clienteArcelor, stringWriter);
+		jaxbMarshaller.marshal(contentArcelor, stringWriter);
 
 	    String result = stringWriter.toString();
 	    
@@ -420,6 +346,85 @@ public class ClienteRest {
                 .build();
         
         
+	}
+
+
+	private Marshaller criaJAXBContext(Class<?> classe) throws JAXBException, PropertyException {
+		JAXBContext jaxbContext = JAXBContext.newInstance(classe);
+		
+		Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+		
+		// formatação
+		jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+		
+		return jaxbMarshaller;
+	}
+
+	private boolean validaBasicAuth(String authString) {
+		
+		if(authString != null) {
+			String decodedAuth = "";
+			
+	        String[] authParts = authString.split("\\s+");
+	        
+	        String authInfo = authParts[1];
+	        
+	        byte[] bytes = null;
+	        bytes = Base64.getDecoder().decode(authInfo);
+	        decodedAuth = new String(bytes);
+	        
+	        System.out.println("In service: " + decodedAuth);
+	        
+	        String[] dados = decodedAuth.split(":");
+	        
+	        String usuario = dados[0];
+	        String senha = dados[1];
+	        
+	        if(!usuario.equals("meuUsuario") || !senha.equals("minhaSenha")) {
+	        	return false;
+	        }
+		}
+		
+		return true;
+	}
+
+
+	private boolean validaApiKeyEHeader(HttpHeaders httpHeaders) {
+		
+		if(httpHeaders != null) {
+			for (Entry<String, List<String>> entry : httpHeaders.getRequestHeaders().entrySet()) {
+				
+				String key = entry.getKey();
+				String value = entry.getValue().get(0);
+				
+				if(key.equals("key")) {
+					if(!value.toString().equals("myKey")) {
+			 
+						return false;
+					}
+				}
+				
+				if(key.equals("value")) {
+					if(!value.toString().equals("myValue")) {
+						
+						return false;
+						
+					}
+				}
+				
+				if(key.equals("token")) {
+					if(!value.toString().equals("ece40d50-b22b-4b33-a728-343be730d85e")) {
+						
+						return false;
+						
+					}
+				}
+				
+			}
+		
+		}
+		
+		return true;
 	}
 	
 	@GET
@@ -431,23 +436,26 @@ public class ClienteRest {
 		if(httpHeaders != null) {
 			for (Entry<String, List<String>> entry : httpHeaders.getRequestHeaders().entrySet()) {
 				
-				if(entry.getKey().equals("key")) {
-					if(!entry.getValue().get(0).toString().equals("myKey")) {
+				String key = entry.getKey();
+				String value = entry.getValue().get(0);
+				
+				if(key.equals("key")) {
+					if(!value.toString().equals("myKey")) {
 			 
 						return getResponseComStatusNaoAutorizado();
 					}
 				}
 				
-				if(entry.getKey().equals("value")) {
-					if(!entry.getValue().get(0).toString().equals("myValue")) {
+				if(key.equals("value")) {
+					if(!value.toString().equals("myValue")) {
 						
 						return getResponseComStatusNaoAutorizado();
 						
 					}
 				}
 				
-				if(entry.getKey().equals("token")) {
-					if(!entry.getValue().get(0).toString().equals("ece40d50-b22b-4b33-a728-343be730d85e")) {
+				if(key.equals("token")) {
+					if(!value.toString().equals("ece40d50-b22b-4b33-a728-343be730d85e")) {
 						
 						return getResponseComStatusNaoAutorizado();
 						
@@ -570,11 +578,11 @@ public class ClienteRest {
 	}
 	
 	@XmlRootElement
-	public static class ClienteArcelor{
+	public static class ContentArcelor{
 		
-		public ClienteArcelor() {
+		public ContentArcelor() {
 			
-			for (int i = 0; i < 2; i++) {
+			for (int i = 0; i < 3; i++) {
 				Beneficiario beneficiario = new Beneficiario();
 				beneficiarios.add(beneficiario);
 			}
@@ -617,7 +625,7 @@ public class ClienteRest {
 		private String cpf = "35461848826";
 		private int tipo = 1; // 1-TITULAR | 2-DEPENDENTE | 3-PROCURADOR DEPENDENTE
 		private int grauParentesco = 1; //1- TITULAR | 2- MÃE | 3- PAI | 4- FILHO | 5- CONJUGE | 6- COMPANHEIRO
-		private Date dataNascimento = new Date(); //PADRÃO DD/MM/AAAA
+		private String dataNascimento = "12/03/1985"; //PADRÃO DD/MM/AAAA
 		private String sexo = "M"; //M ou F (M-MASCULINO ou F-FEMININO)
 		private int limite = 100; //Exs.: 100.00 | 101.02 | 350.70
 		private int operacao = 1; // 1-Inclusão 2-Alteração (somente de dados cadastrais, não altera plano.) 3-Bloqueio Definitivo (Exclusão) //4-Bloqueio Temporário 5-Desbloqueio de Clientes com Bloqueio Temporário
@@ -664,10 +672,10 @@ public class ClienteRest {
 		public void setGrauParentesco(int grauParentesco) {
 			this.grauParentesco = grauParentesco;
 		}
-		public Date getDataNascimento() {
+		public String getDataNascimento() {
 			return dataNascimento;
 		}
-		public void setDataNascimento(Date dataNascimento) {
+		public void setDataNascimento(String dataNascimento) {
 			this.dataNascimento = dataNascimento;
 		}
 		public String getSexo() {
